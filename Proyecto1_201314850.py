@@ -25,6 +25,7 @@ def analizarJS(contenido):
             elif contenido[x] == '*':
                 estado = 3
             else:
+                estado = -1
                 
             
     print("nada")
