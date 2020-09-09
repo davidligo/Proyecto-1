@@ -7,6 +7,9 @@ ruta = "" # La utilizaremos para almacenar la ruta del fichero
 
 def analizarJS(contenido):
     estado = 0
+    texto.delete(1.0, "end")
+    fila = 1
+    columna = 0
     tamanioContenido = len(contenido)
     valor = ""
     for x in range(tamanioContenido):
@@ -16,16 +19,37 @@ def analizarJS(contenido):
                 estado = 1 
                 valor = valor + contenido[x]
                 
-            elif contenido[x] == ' ' or contenido[x] == '\n' or contenido[x] ==  '\t' or contenido[x] ==  '\r':
-                pass
+            elif contenido[x] == ' ':
+                columna = columna + 1       
+                text2.insert(END, " ")
+               
+               
+            elif contenido[x] ==  '\t':
+                columna = columna + 1
+                text2.insert(END, "\t")
+                
+            elif contenido[x] == '\n':
+                columna = 0
+                fila = fila + 1
+                text2.insert(END, "\n")
+                
+            elif  contenido[x] ==  '\r':
+                pass 
             
         elif estado == 1:
-            if contenido[x] == '/':
+            if contenido[x] == '/':  # comentario de 1 linea
                 estado = 2
-            elif contenido[x] == '*':
+                columna = columna + 1
+                valor = valor + contenido[x]
+            elif contenido[x] == '*': # comentario multi linea
                 estado = 3
+                columna = columna + 1
+                valor = valor + contenido[x]
             else:
-                estado = -1
+                estado = 0  # aceptacion para simbolo / que seria un operador
+                x=x-1 # regresamos en 1 para volver a leer el simbolo
+                
+                
                 
             
     print("nada")
