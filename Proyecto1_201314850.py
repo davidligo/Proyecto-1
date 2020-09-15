@@ -119,20 +119,10 @@ def analizarJS(contenido):
     banderaCadenaDoble = False
     banderaCadenaSimple = False
     banderaNumero = False
-    
-    f = open('holamundo.html','wb')
-    
-    mensaje = """<html>
-    <head></head>
-    <body><p>Hola Mundo!</p></body>
-    </html>"""
-    
-    f.write(mensaje)
-    f.close()
-    
-    webbrowser.open_new_tab('holamundo.html')    
-    
-    
+    htmlErrores = open('holamundo.html','w')
+    mensajeError = "<html><head></head><style>table {  font-family: arial, sans-serif;  border-collapse: collapse;  width: 100%;}td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 8px;}tr:nth-child(even) {  background-color: #dddddd;}</style><body><table style=\"width:100%\"><tr><th>No.</th><th>Linea</th><th>Columna</th><th>Descripcion</th></tr>"
+    htmlErrores.write(mensajeError)
+    contadorError = 1
     while x <tamanioContenido:
         
         if (estado>0):
@@ -541,15 +531,24 @@ def analizarJS(contenido):
             # agregar a la lista de errores
             #
             # inicioValorColum = columna
-            # inicioValorFila = fila    
+            # inicioValorFila = fila   
+            mensajeError = "<tr><th>" + repr(contadorError) + "</th><th>" +repr(inicioValorFila) + "</th><th>"+ repr(inicioValorColum) + "</th><th>El caracter " + valor + " no pertenece al lenguaje</th></tr>"
+            htmlErrores.write(mensajeError) 
+            contadorError = contadorError + 1
             paraImprimirConsola = valor + " fila-col " + repr(inicioValorFila) + "-" +repr(inicioValorColum) + "\n"
             text2.insert(END, paraImprimirConsola)
             print(paraImprimirConsola)
             valor = ""  
             estado = 0
             x=x-1            
-        x += 1   
+        x += 1  
+    mensajeError="""</table></body>
+    </html>"""
         
+    htmlErrores.write(mensajeError)
+    htmlErrores.close()    
+
+    webbrowser.open_new_tab('holamundo.html')          
     print("nada")
     
 def analizarCSS(contenido):
