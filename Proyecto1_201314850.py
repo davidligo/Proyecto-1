@@ -394,10 +394,8 @@ def analizarJS(contenido):
                 if esPalabraReservada(valor):
                     # poner tipovalor correcto palabra reservada
                     tipovalor = 1
-                    pass
                 else:
                     tipovalor = 2
-                    pass
                 x=x-1
         elif estado == 12: # es un identificador si o si
             if (contenido[x] >= 'A' and contenido[x] <= 'Z') or (contenido[x] >= 'a' and contenido[x] <= 'z') : # sigo en posible palabra o identificador
@@ -542,6 +540,498 @@ def analizarJS(contenido):
             estado = 0
             x=x-1            
         x += 1  
+    if estado != 0:
+        mensajeError = "<tr><th>" + repr(contadorError) + "</th><th>" +repr(inicioValorFila) + "</th><th>"+ repr(inicioValorColum) + "</th><th>El caracter " + valor + " no pertenece al lenguaje</th></tr>"
+        htmlErrores.write(mensajeError) 
+        contadorError = contadorError + 1
+        paraImprimirConsola = valor + " fila-col " + repr(inicioValorFila) + "-" +repr(inicioValorColum) + "\n"
+        text2.insert(END, paraImprimirConsola)
+        print(paraImprimirConsola)
+        valor = ""  
+        estado = 0
+        x=x-1        
+    mensajeError="""</table></body>
+    </html>"""
+        
+    htmlErrores.write(mensajeError)
+    htmlErrores.close()    
+
+    webbrowser.open_new_tab('holamundo.html')
+    
+    
+    
+    
+def esPalabraReservadaCSS(palabra):
+    if palabra == "color":
+        return True
+    elif palabra == "border":
+        return True
+    elif palabra == "text-align":
+        return True
+    elif palabra == "front-weight":
+        return True
+    elif palabra == "padding-left":
+        return True  
+    elif palabra == "padding-top":
+        return True
+    elif palabra == "line-height":
+        return True    
+    elif palabra == "margin-top":
+        return True
+    elif palabra == "margin-left":
+        return True
+    elif palabra == "display":
+        return True
+    elif palabra == "top":
+        return True 
+    elif palabra == "float":
+        return True
+    elif palabra == "min-width":
+        return True    
+    elif palabra == "background-color":
+        return True
+    elif palabra == "Opacity":
+        return True  
+    elif palabra == "font-family":
+        return True
+    elif palabra == "font-size":
+        return True  
+    elif palabra == "padding-right":
+        return True
+    elif palabra == "padding":
+        return True 
+    elif palabra == "width":
+        return True 
+    elif palabra == "margin-right":
+        return True
+    elif palabra == "margin":
+        return True    
+    elif palabra == "position":
+        return True
+    elif palabra == "right":
+        return True  
+    elif palabra == "clear":
+        return True
+    elif palabra == "max-height":
+        return True  
+    elif palabra == "background-image":
+        return True
+    elif palabra == "background":
+        return True   
+    elif palabra == "font-style":
+        return True 
+    elif palabra == "font":
+        return True 
+    elif palabra == "padding-bottom":
+        return True 
+    elif palabra == "display":
+        return True 
+    elif palabra == "height":
+        return True 
+    elif palabra == "margin-bottom":
+        return True 
+    elif palabra == "border-style":
+        return True 
+    elif palabra == "bottom":
+        return True 
+    elif palabra == "left":
+        return True 
+    elif palabra == "max-width":
+        return True  
+    elif palabra == "min-height":
+        return True     
+    elif palabra == "px":
+        return True 
+    elif palabra == "em":
+        return True 
+    elif palabra == "vh":
+        return True 
+    elif palabra == "vw":
+        return True 
+    elif palabra == "in":
+        return True 
+    elif palabra == "cm":
+        return True 
+    elif palabra == "mm":
+        return True 
+    elif palabra == "pt":
+        return True 
+    elif palabra == "pc":
+        return True   
+    elif palabra == "red":
+        return True 
+    elif palabra == "purple":
+        return True 
+    elif palabra == "rgba":
+        return True  
+    elif palabra == "url":
+        return True    
+    elif palabra == "relative":
+        return True     
+    else:
+        return False
+    
+def analizarCSS(contenido):
+    estado = 0
+    texto.delete(1.0, "end")
+    fila = 1
+    columna = 0
+    tamanioContenido = len(contenido)
+    valor = ""
+    inicioValorColum = 0
+    inicioValorFila = 0
+    tipovalor = 0
+    contadorTag = 0
+    print (contenido[tamanioContenido-2] + contenido[tamanioContenido-1])
+    x=0
+    listaValores = []
+    listaEstados = []
+    banderaPalabraR = False
+    banderaCadenaDoble = False
+    banderaCadenaSimple = False
+    banderaNumero = False
+    htmlErrores = open('holamundo.html','w')
+    mensajeError = "<html><head></head><style>table {  font-family: arial, sans-serif;  border-collapse: collapse;  width: 100%;}td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 8px;}tr:nth-child(even) {  background-color: #dddddd;}</style><body><table style=\"width:100%\"><tr><th>No.</th><th>Linea</th><th>Columna</th><th>Descripcion</th></tr>"
+    htmlErrores.write(mensajeError)
+    contadorError = 1
+    while x <tamanioContenido:
+        if (estado>0):
+            listaEstados.extend([estado])
+            listaValores.extend([contenido[x]])
+        if estado == 0:
+            listaEstados = [0]
+            listaValores = [contenido[x]]
+            valor = ""
+            tipovalor = 0
+            inicioValorColum = columna
+            inicioValorFila = fila
+            if contenido[x] == '/':
+                estado = 1 
+                columna = columna + 1
+                valor = valor + contenido[x]            
+            elif contenido[x] == '"':  # cadena
+                estado = 5
+                columna = columna + 1
+                valor = valor + contenido[x]               
+            elif contenido[x] == '(':
+                estado = -1
+                columna = columna + 1
+                valor = valor + contenido[x]  
+            elif contenido[x] == ')':
+                estado = -1
+                columna = columna + 1
+                valor = valor + contenido[x]    
+            elif contenido[x] == '{':
+                estado = -1
+                columna = columna + 1
+                valor = valor + contenido[x]  
+            elif contenido[x] == '}':
+                estado = -1
+                columna = columna + 1
+                valor = valor + contenido[x] 
+            elif contenido[x] == ';':
+                estado = -1
+                columna = columna + 1
+                valor = valor + contenido[x]  
+            elif contenido[x] == '.':
+                estado = -1
+                columna = columna + 1
+                valor = valor + contenido[x]  
+            elif contenido[x] == ',':
+                estado = -1
+                columna = columna + 1
+                valor = valor + contenido[x]  
+            elif contenido[x] == ':':
+                estado = -1
+                columna = columna + 1
+                valor = valor + contenido[x]
+            elif contenido[x] == '*':
+                estado = -1
+                columna = columna + 1
+                valor = valor + contenido[x]   
+            elif contenido[x] == '#':
+                estado = -1
+                columna = columna + 1
+                valor = valor + contenido[x] 
+            elif contenido[x] == '%':
+                estado = -1
+                columna = columna + 1
+                valor = valor + contenido[x]                 
+            elif contenido[x] == '-': 
+                estado = -1
+                columna = columna + 1
+                valor = valor + contenido[x]   
+            elif (contenido[x] >= '0' and contenido[x] <= '9') or (contenido[x] >= 'A' and contenido[x] <= 'F') or (contenido[x] >= 'a' and contenido[x] <= 'f'): # posible numero
+                if (contenido[x] >= 'A' and contenido[x] <= 'F') or (contenido[x] >= 'a' and contenido[x] <= 'f'):
+                    estado = 15  #es numero o palabra
+                else:
+                    estado = 13  #es numero
+                columna = columna + 1
+                valor = valor + contenido[x]                 
+            elif (contenido[x] >= 'A' and contenido[x] <= 'Z') or (contenido[x] >= 'a' and contenido[x] <= 'z'): # posible palabra o identificador
+                estado = 11
+                columna = columna + 1
+                valor = valor + contenido[x]                 
+                
+              
+            elif contenido[x] == '0': # posible valor 0
+                estado = 15
+                columna = columna + 1
+                valor = valor + contenido[x]                  
+                
+                
+            elif contenido[x] == ' ':
+                columna = columna + 1       
+                texto.insert(END, " ")
+            elif contenido[x] ==  '\t':
+                columna = columna + 1
+                texto.insert(END, "\t")
+            elif contenido[x] == '\n':
+                columna = 0
+                fila = fila + 1
+                texto.insert(END, "\n")
+            elif  contenido[x] ==  '\r':
+                pass 
+            else:
+                estado = -2
+                columna = columna + 1
+                valor = valor + contenido[x]               
+            
+        elif estado == 1:   #   /
+            if contenido[x] == '*': # comentario multilinea
+                estado = 3
+                columna = columna + 1
+                valor = valor + contenido[x]
+            else:
+                estado = -2
+                x=x-1 
+        elif estado == 3: # comentario multilinea
+            if contenido[x] == '*':  # posible salida
+                estado = 4 
+                columna = columna + 1
+                valor = valor + contenido[x]                
+            else:
+                if contenido[x] == '\n':
+                    columna = 0
+                    fila = fila + 1
+                columna = columna + 1
+                valor = valor + contenido[x]   
+        elif estado == 4: # comentario multilinea posible salida
+            if contenido[x] == '/':  # salida
+                estado = -1   
+                columna = columna + 1
+                tipovalor = 5
+                valor = valor + contenido[x] 
+            elif contenido[x] == '*':  # posible salida
+                columna = columna + 1
+                valor = valor + contenido[x]                
+            else:
+                estado = 3
+                if contenido[x] == '\n':
+                    columna = 0
+                    fila = fila + 1                
+                columna = columna + 1
+                valor = valor + contenido[x]      
+        elif estado == 5:    #   posible cadena
+            if contenido[x] == '\\':  # posible uso de \"
+                estado = 6
+                columna = columna + 1
+                valor = valor + contenido[x] 
+            elif contenido[x] == '"': # fin y aceptacion de cadena
+                estado = -1
+                columna = columna + 1
+                tipovalor = 3
+                listaEstados.extend([-1])
+                listaValores.extend([contenido[x]])                
+                valor = valor + contenido[x]
+            elif contenido[x] == '\n':  #salto de linea es porque hay error
+                estado = -2
+                x=x-1
+            else:
+                columna = columna + 1
+                valor = valor + contenido[x] 
+        elif estado == 6:
+            if contenido[x] == '\n':  #salto de linea es porque hay error
+                estado = -2
+                x=x-1       
+            else:
+                columna = columna + 1
+                valor = valor + contenido[x]
+                estado = 5
+
+        elif estado == 11:  # posible palabra o identificador
+            if (contenido[x] >= 'A' and contenido[x] <= 'Z') or (contenido[x] >= 'a' and contenido[x] <= 'z') : # sigo en posible palabra o identificador
+                columna = columna + 1
+                valor = valor + contenido[x]  #48 - 57
+            elif contenido[x] >= '0' and contenido[x] <= '9': # numero entonces es identificador
+                estado = 12
+                columna = columna + 1
+                valor = valor + contenido[x]
+            elif contenido[x] == '-': # - 
+                columna = columna + 1
+                valor = valor + contenido[x]                  
+            else:  # acepta la palabra reservada o posible identificador
+                estado = -1
+                if esPalabraReservadaCSS(valor):
+                    # poner tipovalor correcto palabra reservada
+                    tipovalor = 1
+                else:
+                    tipovalor = 2
+                x=x-1        
+        elif estado == 12: # es un identificador si o si
+            if (contenido[x] >= 'A' and contenido[x] <= 'Z') or (contenido[x] >= 'a' and contenido[x] <= 'z') : # sigo en posible palabra o identificador
+                columna = columna + 1
+                valor = valor + contenido[x]  #48 - 57
+            elif contenido[x] >= '0' and contenido[x] <= '9': 
+                columna = columna + 1
+                valor = valor + contenido[x]
+            elif contenido[x] == '-': # - -
+                columna = columna + 1
+                valor = valor + contenido[x]                  
+            else:  # acepta el identificador
+                estado = -1
+                if esPalabraReservadaCSS(valor):
+                    # poner tipovalor correcto palabra reservada
+                    tipovalor = 1
+                else:
+                    tipovalor = 2                
+                x=x-1    
+        elif estado == 13: # posible numero
+            if contenido[x] >= '0' and contenido[x] <= '9': 
+                columna = columna + 1
+                valor = valor + contenido[x]
+            elif contenido[x] == '.': # . entonces es numero con decimales
+                estado = 14
+                columna = columna + 1
+                valor = valor + contenido[x]
+            elif  (contenido[x] >= 'A' and contenido[x] <= 'F') or (contenido[x] >= 'a' and contenido[x] <= 'f'):
+                if len(valor) > 5:
+                    estado = -1
+                    tipovalor = 4
+                    x=x-1                       
+                estado = 20 # creo que tengo que cambiar algo hola vane porque inicia con numero y no podria ser un identificador
+                columna = columna + 1
+                valor = valor + contenido[x]
+            else:  # acepta el identificador
+                estado = -1
+                # valortipo de identificador
+                tipovalor = 4
+                x=x-1  
+        elif estado == 20:
+            if contenido[x] >= '0' and contenido[x] <= '9': # numero
+                if len(valor) > 5:
+                    estado = -2
+                    x=x-1
+                else:                    
+                    columna = columna + 1
+                    valor = valor + contenido[x]  
+            elif  (contenido[x] >= 'A' and contenido[x] <= 'F') or (contenido[x] >= 'a' and contenido[x] <= 'f'):
+                if len(valor) > 5:
+                    estado = -2
+                    x=x-1
+                else:
+                    columna = columna + 1
+                    valor = valor + contenido[x]      
+         
+            else:  # acepta el numero con decimales
+                if len(valor) == 6:
+                    estado = -1
+                    # valortipo de identificador
+                    tipovalor = 4
+                    x=x-1
+                else:
+                    estado = -2
+                    x=x-1                 
+            
+        elif estado == 14: # posible numero con decimales
+            if contenido[x] >= '0' and contenido[x] <= '9': # numero entonces es numero con decimales
+                columna = columna + 1
+                estado = 19
+                valor = valor + contenido[x]                  
+            else:  # acepta el numero sin el .
+                estado = -1
+                # valortipo de identificador
+                tipovalor = 4
+                columna = columna - 1
+                x=x-2
+                tamanioValor = len(valor)
+                listaEstados.pop()
+                listaValores.pop()
+                valor = valor[:-1]
+        elif estado == 19: # posible numer
+            if contenido[x] >= '0' and contenido[x] <= '9': # numero
+                columna = columna + 1
+                valor = valor + contenido[x]                             
+            else:  # acepta el numero con decimales
+                estado = -1
+                # valortipo de identificador
+                tipovalor = 4
+                x=x-1                  
+        elif estado == 15: # posible numero color
+            if contenido[x] >= '0' and contenido[x] <= '9': # numero
+                if len(valor) > 5:
+                    estado = 12  
+                columna = columna + 1
+                valor = valor + contenido[x]  
+            elif  (contenido[x] >= 'A' and contenido[x] <= 'F') or (contenido[x] >= 'a' and contenido[x] <= 'f'):
+                if len(valor) > 5:
+                    estado = 12
+                columna = columna + 1
+                valor = valor + contenido[x]      
+            elif  (contenido[x] >= 'A' and contenido[x] <= 'Z') or (contenido[x] >= 'a' and contenido[x] <= 'z') or contenido[x] == '-':
+                estado = 12
+                columna = columna + 1
+                valor = valor + contenido[x]                 
+            else:  # acepta el numero con decimales
+                if len(valor) == 6:
+                    estado = -1
+                    # valortipo de identificador
+                    tipovalor = 4
+                    x=x-1
+                else:
+                    estado = -1
+                    # valortipo de identificador
+                    tipovalor = 2
+                    x=x-1    
+        elif estado == -1:   #estado de aceptacion para todos
+            listaValores.pop()
+            inicioTag = texto.index(CURRENT)
+            texto.insert(END, valor)
+            finTag = texto.index(CURRENT)
+            nombreTag = "nombre" + repr(contadorTag)
+            contadorTag = contadorTag + 1          
+            texto.tag_add(nombreTag, inicioTag, finTag)
+            colorTag = obtenerColorTag(tipovalor)
+            texto.tag_config(nombreTag, foreground=colorTag)            
+            valor = ""  
+            tipovalor = 0
+            estado = 0
+            x=x-1
+        elif estado == -2:      # estado de errores
+            # agregar a la lista de errores
+            #
+            # inicioValorColum = columna
+            # inicioValorFila = fila   
+            mensajeError = "<tr><th>" + repr(contadorError) + "</th><th>" +repr(inicioValorFila) + "</th><th>"+ repr(inicioValorColum) + "</th><th>El caracter " + valor + " no pertenece al lenguaje</th></tr>"
+            htmlErrores.write(mensajeError) 
+            contadorError = contadorError + 1
+            paraImprimirConsola = valor + " fila-col " + repr(inicioValorFila) + "-" +repr(inicioValorColum) + "\n"
+            text2.insert(END, paraImprimirConsola)
+            print(paraImprimirConsola)
+            valor = ""  
+            estado = 0
+            x=x-1            
+        x += 1  
+    if estado != 0:
+        mensajeError = "<tr><th>" + repr(contadorError) + "</th><th>" +repr(inicioValorFila) + "</th><th>"+ repr(inicioValorColum) + "</th><th>El caracter " + valor + " no pertenece al lenguaje</th></tr>"
+        htmlErrores.write(mensajeError) 
+        contadorError = contadorError + 1
+        paraImprimirConsola = valor + " fila-col " + repr(inicioValorFila) + "-" +repr(inicioValorColum) + "\n"
+        text2.insert(END, paraImprimirConsola)
+        print(paraImprimirConsola)
+        valor = ""  
+        estado = 0
+        x=x-1      
     mensajeError="""</table></body>
     </html>"""
         
@@ -551,7 +1041,6 @@ def analizarJS(contenido):
     webbrowser.open_new_tab('holamundo.html')          
     print("nada")
     
-def analizarCSS(contenido):
     print("nada")
     
 def analizarHTML(contenido):
