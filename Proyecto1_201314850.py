@@ -6,9 +6,13 @@ import os.path
 
 ruta = "" # La utilizaremos para almacenar la ruta del fichero
 
+
 import webbrowser
 
+import os
 
+def crearDirectorio(directorio):
+    os.makedirs(directorio, exist_ok=True)
 
 #dot = Digraph(comment='The Round Table')
 #dot.node('A', 'King Arthur')
@@ -20,7 +24,7 @@ import webbrowser
 
 #dot.render('test-output/round-table.gv', view=True)
 
-def jsReporteIdentificador(listaEstados, listaValores, tipoValor):
+def jsReporteIdentificador(listaEstados, listaValores, tipoValor, directorioRuta):
     dot = Digraph(comment='AFD de Palabra Reservada')
     tamanioListaEstados = len(listaEstados)
     dot.attr('node', shape='doublecircle')
@@ -31,13 +35,17 @@ def jsReporteIdentificador(listaEstados, listaValores, tipoValor):
         dot.edge(repr(listaEstados[x]), repr(listaEstados[x+1]), label=repr(listaValores[x]))
         x = x+1
     if tipoValor == 2:
-        dot.render('test-output/Identificador.gv', view=True)
+        ruta = directorioRuta +'/Identificador.gv'
+        dot.render(ruta, view=True)
     elif tipoValor == 3:
-        dot.render('test-output/CadenaDoble.gv', view=True)
+        ruta = directorioRuta +'/CadenaDoble.gv'
+        dot.render(ruta, view=True)
     elif tipoValor == 3.5:
-        dot.render('test-output/CadenaSimple.gv', view=True)
+        ruta = directorioRuta +'/CadenaSimple.gv'
+        dot.render(ruta, view=True)
     elif tipoValor == 4:
-        dot.render('test-output/Numero.gv', view=True)
+        ruta = directorioRuta +'/Numero.gv'
+        dot.render(ruta, view=True)
 
 
 
@@ -100,7 +108,7 @@ def obtenerColorTag(tipo):
         return "black"
     
 
-def analizarJS(contenido):
+def analizarJS(contenido, ruta):
     estado = 0
     texto.delete(1.0, "end")
     fila = 1
@@ -119,9 +127,11 @@ def analizarJS(contenido):
     banderaCadenaDoble = False
     banderaCadenaSimple = False
     banderaNumero = False
-    htmlErrores = open('holamundo.html','w')
+    directorioRuta = ""
+    banderaDirectorio = False    
+    #htmlErrores = open('ReporteErroresJS.html','w')
     mensajeError = "<html><head></head><style>table {  font-family: arial, sans-serif;  border-collapse: collapse;  width: 100%;}td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 8px;}tr:nth-child(even) {  background-color: #dddddd;}</style><body><table style=\"width:100%\"><tr><th>No.</th><th>Linea</th><th>Columna</th><th>Descripcion</th></tr>"
-    htmlErrores.write(mensajeError)
+    #htmlErrores.write(mensajeError)
     contadorError = 1
     while x <tamanioContenido:
         
@@ -279,7 +289,13 @@ def analizarJS(contenido):
             if contenido[x] == '\n':  # comentario de 1 linea
                 estado = -1 
                 tipovalor = 5
+                valor.find
                 x=x-1
+                if banderaDirectorio == False:
+                    if "PATHW: " in valor:
+                        banderaDirectorio = True
+                        crearDirectorio(valor[9:])
+                        directorioRuta = valor[9:]                
             else:
                 columna = columna + 1
                 valor = valor + contenido[x]     
@@ -503,19 +519,19 @@ def analizarJS(contenido):
             contadorTag = contadorTag + 1
             if tipovalor == 2:
                 if banderaPalabraR == False:
-                    jsReporteIdentificador(listaEstados,listaValores,tipovalor)
+                    jsReporteIdentificador(listaEstados,listaValores,tipovalor,directorioRuta)
                     banderaPalabraR = True
             elif tipovalor == 3:
                 if banderaCadenaDoble == False:
-                    jsReporteIdentificador(listaEstados,listaValores,tipovalor)
+                    jsReporteIdentificador(listaEstados,listaValores,tipovalor,directorioRuta)
                     banderaCadenaDoble = True
             elif tipovalor == 3.5:
                 if banderaCadenaSimple == False:
-                    jsReporteIdentificador(listaEstados,listaValores,tipovalor)
+                    jsReporteIdentificador(listaEstados,listaValores,tipovalor,directorioRuta)
                     banderaCadenaSimple = True
             elif tipovalor == 4:
                 if banderaNumero == False:
-                    jsReporteIdentificador(listaEstados,listaValores,tipovalor)
+                    jsReporteIdentificador(listaEstados,listaValores,tipovalor,directorioRuta)
                     banderaNumero = True
           
             texto.tag_add(nombreTag, inicioTag, finTag)
@@ -530,8 +546,8 @@ def analizarJS(contenido):
             #
             # inicioValorColum = columna
             # inicioValorFila = fila   
-            mensajeError = "<tr><th>" + repr(contadorError) + "</th><th>" +repr(inicioValorFila) + "</th><th>"+ repr(inicioValorColum) + "</th><th>El caracter " + valor + " no pertenece al lenguaje</th></tr>"
-            htmlErrores.write(mensajeError) 
+            mensajeError =mensajeError+ "<tr><th>" + repr(contadorError) + "</th><th>" +repr(inicioValorFila) + "</th><th>"+ repr(inicioValorColum) + "</th><th>El caracter " + valor + " no pertenece al lenguaje</th></tr>"
+            #htmlErrores.write(mensajeError) 
             contadorError = contadorError + 1
             paraImprimirConsola = valor + " fila-col " + repr(inicioValorFila) + "-" +repr(inicioValorColum) + "\n"
             text2.insert(END, paraImprimirConsola)
@@ -541,8 +557,8 @@ def analizarJS(contenido):
             x=x-1            
         x += 1  
     if estado != 0:
-        mensajeError = "<tr><th>" + repr(contadorError) + "</th><th>" +repr(inicioValorFila) + "</th><th>"+ repr(inicioValorColum) + "</th><th>El caracter " + valor + " no pertenece al lenguaje</th></tr>"
-        htmlErrores.write(mensajeError) 
+        mensajeError = mensajeError+ "<tr><th>" + repr(contadorError) + "</th><th>" +repr(inicioValorFila) + "</th><th>"+ repr(inicioValorColum) + "</th><th>Los caracteres " + valor + " no pertenece al lenguaje</th></tr>"
+        #htmlErrores.write(mensajeError) 
         contadorError = contadorError + 1
         paraImprimirConsola = valor + " fila-col " + repr(inicioValorFila) + "-" +repr(inicioValorColum) + "\n"
         text2.insert(END, paraImprimirConsola)
@@ -550,14 +566,22 @@ def analizarJS(contenido):
         valor = ""  
         estado = 0
         x=x-1        
-    mensajeError="""</table></body>
-    </html>"""
-        
+    mensajeError= mensajeError + "</table></body></html>"
+       
+    htmlNombre = directorioRuta + "\Reporte Errores JS.html"
+    rutaO = ruta
+    direc, nombre = os.path.split(rutaO)
+    ruta = directorioRuta + "/" +nombre
+    contenido2 = texto.get(1.0,'end-1c')
+    fichero = open(ruta, 'w+')
+    fichero.write(contenido2)
+    fichero.close()
+    htmlErrores = open(htmlNombre,'w')
     htmlErrores.write(mensajeError)
     htmlErrores.close()    
-
-    webbrowser.open_new_tab('holamundo.html')
     
+    webbrowser.open_new_tab(htmlNombre)        
+
     
     
     
@@ -671,7 +695,7 @@ def esPalabraReservadaCSS(palabra):
     else:
         return False
     
-def analizarCSS(contenido):
+def analizarCSS(contenido, ruta):
     estado = 0
     texto.delete(1.0, "end")
     fila = 1
@@ -683,16 +707,19 @@ def analizarCSS(contenido):
     tipovalor = 0
     contadorTag = 0
     print (contenido[tamanioContenido-2] + contenido[tamanioContenido-1])
+    root2 = Tk()
+    root2.title("Reporte CSS")
+    texto3 = Text(root2)
+    texto3.pack(fill="both", expand=1)
+    texto3.config(bd=0, padx=6, pady=4, font=("Consolas",12))    
     x=0
+    directorioRuta = ""
     listaValores = []
     listaEstados = []
-    banderaPalabraR = False
-    banderaCadenaDoble = False
-    banderaCadenaSimple = False
-    banderaNumero = False
-    htmlErrores = open('holamundo.html','w')
+    banderaDirectorio = False
+    #htmlErrores = open('asdf/Reporte Errores CSS.html','w')
     mensajeError = "<html><head></head><style>table {  font-family: arial, sans-serif;  border-collapse: collapse;  width: 100%;}td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 8px;}tr:nth-child(even) {  background-color: #dddddd;}</style><body><table style=\"width:100%\"><tr><th>No.</th><th>Linea</th><th>Columna</th><th>Descripcion</th></tr>"
-    htmlErrores.write(mensajeError)
+    #htmlErrores.write(mensajeError)
     contadorError = 1
     while x <tamanioContenido:
         if (estado>0):
@@ -715,50 +742,74 @@ def analizarCSS(contenido):
                 valor = valor + contenido[x]               
             elif contenido[x] == '(':
                 estado = -1
+                listaEstados.extend([-1])               
+                listaValores.extend([contenido[x]])                 
                 columna = columna + 1
                 valor = valor + contenido[x]  
             elif contenido[x] == ')':
                 estado = -1
+                listaEstados.extend([-1])               
+                listaValores.extend([contenido[x]])                 
                 columna = columna + 1
                 valor = valor + contenido[x]    
             elif contenido[x] == '{':
                 estado = -1
+                listaEstados.extend([-1])               
+                listaValores.extend([contenido[x]])                 
                 columna = columna + 1
                 valor = valor + contenido[x]  
             elif contenido[x] == '}':
                 estado = -1
+                listaEstados.extend([-1])               
+                listaValores.extend([contenido[x]])                 
                 columna = columna + 1
                 valor = valor + contenido[x] 
             elif contenido[x] == ';':
                 estado = -1
+                listaEstados.extend([-1])               
+                listaValores.extend([contenido[x]])                 
                 columna = columna + 1
                 valor = valor + contenido[x]  
             elif contenido[x] == '.':
                 estado = -1
+                listaEstados.extend([-1])               
+                listaValores.extend([contenido[x]])                 
                 columna = columna + 1
                 valor = valor + contenido[x]  
             elif contenido[x] == ',':
                 estado = -1
+                listaEstados.extend([-1])               
+                listaValores.extend([contenido[x]])                 
                 columna = columna + 1
                 valor = valor + contenido[x]  
             elif contenido[x] == ':':
                 estado = -1
+                listaEstados.extend([-1])               
+                listaValores.extend([contenido[x]])                 
                 columna = columna + 1
                 valor = valor + contenido[x]
             elif contenido[x] == '*':
                 estado = -1
+                listaEstados.extend([-1])               
+                listaValores.extend([contenido[x]])                 
                 columna = columna + 1
                 valor = valor + contenido[x]   
             elif contenido[x] == '#':
                 estado = -1
+                listaEstados.extend([-1])               
+                listaValores.extend([contenido[x]])                 
                 columna = columna + 1
                 valor = valor + contenido[x] 
             elif contenido[x] == '%':
                 estado = -1
+                listaEstados.extend([-1])               
+                listaValores.extend([contenido[x]])                 
                 columna = columna + 1
                 valor = valor + contenido[x]                 
             elif contenido[x] == '-': 
                 estado = -1
+                listaEstados.extend([-1])               
+                listaValores.extend([contenido[x]])                 
                 columna = columna + 1
                 valor = valor + contenido[x]   
             elif (contenido[x] >= '0' and contenido[x] <= '9') or (contenido[x] >= 'A' and contenido[x] <= 'F') or (contenido[x] >= 'a' and contenido[x] <= 'f'): # posible numero
@@ -795,7 +846,7 @@ def analizarCSS(contenido):
             else:
                 estado = -2
                 columna = columna + 1
-                valor = valor + contenido[x]               
+                valor = valor + contenido[x]
             
         elif estado == 1:   #   /
             if contenido[x] == '*': # comentario multilinea
@@ -821,7 +872,15 @@ def analizarCSS(contenido):
                 estado = -1   
                 columna = columna + 1
                 tipovalor = 5
+                listaEstados.extend([-1])
+                listaValores.extend([contenido[x]])                
                 valor = valor + contenido[x] 
+                if banderaDirectorio == False:
+                    if "PATHW: " in valor:
+                        banderaDirectorio = True
+                        crearDirectorio(valor[9:-2])
+                        directorioRuta = valor[9:-2]
+                        
             elif contenido[x] == '*':  # posible salida
                 columna = columna + 1
                 valor = valor + contenido[x]                
@@ -909,7 +968,7 @@ def analizarCSS(contenido):
                     estado = -1
                     tipovalor = 4
                     x=x-1                       
-                estado = 20 # creo que tengo que cambiar algo hola vane porque inicia con numero y no podria ser un identificador
+                estado = 20 
                 columna = columna + 1
                 valor = valor + contenido[x]
             else:  # acepta el identificador
@@ -997,6 +1056,13 @@ def analizarCSS(contenido):
             listaValores.pop()
             inicioTag = texto.index(CURRENT)
             texto.insert(END, valor)
+            texto3.insert(END, "Estados -> ")
+            texto3.insert(END, listaEstados)
+            texto3.insert(END, "\nCaracteres acceptados - > ")
+            texto3.insert(END, listaValores)
+            texto3.insert(END, "\nToken -> ")
+            texto3.insert(END, valor)  
+            texto3.insert(END, "\n\n")
             finTag = texto.index(CURRENT)
             nombreTag = "nombre" + repr(contadorTag)
             contadorTag = contadorTag + 1          
@@ -1011,9 +1077,22 @@ def analizarCSS(contenido):
             # agregar a la lista de errores
             #
             # inicioValorColum = columna
-            # inicioValorFila = fila   
-            mensajeError = "<tr><th>" + repr(contadorError) + "</th><th>" +repr(inicioValorFila) + "</th><th>"+ repr(inicioValorColum) + "</th><th>El caracter " + valor + " no pertenece al lenguaje</th></tr>"
-            htmlErrores.write(mensajeError) 
+            # inicioValorFila = fila  
+            inicioError = texto3.index(CURRENT)
+            listaEstados.extend([-2])
+            texto3.insert(END, "Error\n")
+            finError = texto3.index(CURRENT)
+            texto3.tag_add("error", inicioError, finError)
+            texto3.tag_config("error", foreground="red")              
+            texto3.insert(END, "Estados -> ")
+            texto3.insert(END, listaEstados)
+            texto3.insert(END, "\nCaracteres acceptados - > ")
+            texto3.insert(END, listaValores)
+            texto3.insert(END, "\nToken -> ")
+            texto3.insert(END, valor)  
+            texto3.insert(END, "\n\n")            
+            mensajeError = mensajeError + "<tr><th>" + repr(contadorError) + "</th><th>" +repr(inicioValorFila) + "</th><th>"+ repr(inicioValorColum) + "</th><th>El caracter " + valor + " no pertenece al lenguaje</th></tr>"
+            #htmlErrores.write(mensajeError) 
             contadorError = contadorError + 1
             paraImprimirConsola = valor + " fila-col " + repr(inicioValorFila) + "-" +repr(inicioValorColum) + "\n"
             text2.insert(END, paraImprimirConsola)
@@ -1023,8 +1102,21 @@ def analizarCSS(contenido):
             x=x-1            
         x += 1  
     if estado != 0:
-        mensajeError = "<tr><th>" + repr(contadorError) + "</th><th>" +repr(inicioValorFila) + "</th><th>"+ repr(inicioValorColum) + "</th><th>El caracter " + valor + " no pertenece al lenguaje</th></tr>"
-        htmlErrores.write(mensajeError) 
+        inicioError = texto3.index(CURRENT)
+        listaEstados.extend([-2])
+        texto3.insert(END, "Error\n")
+        finError = texto3.index(CURRENT)
+        texto3.tag_add("error", inicioError, finError)
+        texto3.tag_config("error", foreground="red")              
+        texto3.insert(END, "Estados -> ")
+        texto3.insert(END, listaEstados)
+        texto3.insert(END, "\nCaracteres acceptados - > ")
+        texto3.insert(END, listaValores)
+        texto3.insert(END, "\nToken -> ")
+        texto3.insert(END, valor)  
+        texto3.insert(END, "\n\n")          
+        mensajeError = mensajeError + "<tr><th>" + repr(contadorError) + "</th><th>" +repr(inicioValorFila) + "</th><th>"+ repr(inicioValorColum) + "</th><th>Los caracteres " + valor + " no pertenece al lenguaje</th></tr>"
+        #htmlErrores.write(mensajeError) 
         contadorError = contadorError + 1
         paraImprimirConsola = valor + " fila-col " + repr(inicioValorFila) + "-" +repr(inicioValorColum) + "\n"
         text2.insert(END, paraImprimirConsola)
@@ -1032,24 +1124,30 @@ def analizarCSS(contenido):
         valor = ""  
         estado = 0
         x=x-1      
-    mensajeError="""</table></body>
-    </html>"""
-        
+    mensajeError= mensajeError +"</table></body></html>"
+    htmlNombre = directorioRuta + "\Reporte Errores CSS.html"
+    rutaO = ruta
+    direc, nombre = os.path.split(rutaO)
+    ruta = directorioRuta + "/" +nombre
+    contenido2 = texto.get(1.0,'end-1c')
+    fichero = open(ruta, 'w+')
+    fichero.write(contenido2)
+    fichero.close()
+    htmlErrores = open(htmlNombre,'w')
     htmlErrores.write(mensajeError)
     htmlErrores.close()    
-
-    webbrowser.open_new_tab('holamundo.html')          
-    print("nada")
     
-    print("nada")
+    webbrowser.open_new_tab(htmlNombre)          
+    root2.mainloop()
     
-def analizarHTML(contenido):
+def analizarRMT(contenido):
     print("nada")    
 
 def nuevo():
     global ruta
     mensaje.set("Nuevo fichero")
     ruta = ""
+    nombreRuta = ""
     texto.delete(1.0, "end")
     root.title("Mi editor")
 
@@ -1058,7 +1156,7 @@ def abrir():
     mensaje.set("Abrir fichero")
     ruta = FileDialog.askopenfilename(
         initialdir='.', 
-        filetypes=(("Ficheros de texto", "*.js *.css *.html"),),
+        filetypes=(("Ficheros de texto", "*.js *.css *.html *.rmt"),),
         title="Abrir un fichero de texto")
 
     if ruta != "":
@@ -1118,13 +1216,13 @@ def analisis():
     texto.insert(END, " ")
     contenido = texto.get(1.0,'end-1c')
     if extension == ".js":
-        analizarJS(contenido)
+        analizarJS(contenido, ruta)
         
     elif extension == ".css":
-        analizarCSS(contenido)
+        analizarCSS(contenido, ruta)
         
-    elif extension == ".html":
-        analizarHTML(contenido)
+    elif extension == ".rmt":
+        analizarRMT(contenido, ruta)
     else:
         print() # error de extension 
             
